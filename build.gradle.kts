@@ -26,6 +26,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("com.fasterxml.jackson.core:jackson-databind")
+	implementation("com.fasterxml.jackson.core:jackson-core")
+	implementation("com.fasterxml.jackson.core:jackson-annotations")
+	implementation("org.apache.httpcomponents:httpclient:4.5.13")
+	implementation("org.apache.httpcomponents:httpmime:4.5.13")
+	implementation("org.springframework.boot:spring-boot-starter-aop")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
 	annotationProcessor("org.projectlombok:lombok")
@@ -33,6 +39,7 @@ dependencies {
 	runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+
 }
 
 tasks.withType<Test> {

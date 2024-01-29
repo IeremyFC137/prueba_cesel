@@ -35,7 +35,10 @@ public class AutenticacionController {
     private UsuarioRepository usuarioRepository;
 
     @PostMapping("/login")
-    public ResponseEntity<DatosAutenticacion> autenticarUsuario(@RequestBody @Valid DatosAutenticacionUsuario datosAutenticacionUsuario) {
+    public ResponseEntity<DatosAutenticacion> autenticarUsuario(
+            @RequestBody
+            @Valid
+            DatosAutenticacionUsuario datosAutenticacionUsuario) {
 
         try{
             org.springframework.security.core.Authentication authToken = new UsernamePasswordAuthenticationToken(datosAutenticacionUsuario.login(),

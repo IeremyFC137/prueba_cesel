@@ -5,14 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import pe.com.cesel.prueba_cesel.domain.direccion.Direccion;
-import pe.com.cesel.prueba_cesel.domain.usuario.DatosRegistroUsuario;
-import pe.com.cesel.prueba_cesel.domain.usuario.Rol;
 import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Table(name = "gastos_prueba_ieremy")
 @Entity(name = "Gasto")
@@ -58,6 +54,25 @@ public class Gasto {
         this.c_costo = datosRegistroGastos.c_costo();
         this.c_gasto = datosRegistroGastos.c_gasto();
         this.c_contable = datosRegistroGastos.c_contable();
+    }
+
+    public void actualizarDatos(DatosActualizarGasto datosActualizarGasto) {
+
+        if (datosActualizarGasto.c_costo() != null) {
+            this.c_costo = datosActualizarGasto.c_costo();
+        }
+        if (datosActualizarGasto.c_gasto()!= null) {
+            this.c_gasto = datosActualizarGasto.c_gasto();
+        }
+        if (datosActualizarGasto.c_contable()!= null) {
+            this.c_contable = datosActualizarGasto.c_contable();
+        }
+        if(datosActualizarGasto.importe()!=null){
+            this.importe = datosActualizarGasto.importe();
+        }
+        if(datosActualizarGasto.p_importe()!=null){
+            this.p_importe = datosActualizarGasto.p_importe();
+        }
     }
 
 

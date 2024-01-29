@@ -82,7 +82,7 @@ public class TokenService {
 
     public String extractToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+        if (bearerToken != null) {
             return bearerToken.substring(7);
         }
         return null;
