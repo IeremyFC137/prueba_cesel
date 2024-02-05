@@ -9,8 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import pe.com.cesel.prueba_cesel.domain.direccion.DatosDireccion;
 import pe.com.cesel.prueba_cesel.domain.gasto.*;
 import org.springframework.transaction.annotation.Transactional;
+import pe.com.cesel.prueba_cesel.domain.usuario.DatosRespuestaUsuario;
 import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 import pe.com.cesel.prueba_cesel.domain.usuario.UsuarioRepository;
 import pe.com.cesel.prueba_cesel.infra.errores.ValidacionDeIntegridad;
@@ -55,6 +57,16 @@ public class GastoController {
         return ResponseEntity.ok(gastoRepository.findByUsuarioId(usuario.getId(), paginacion).map(DatosDetalleGasto::new));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<DatosDetalleGasto> retornaDatosGasto(
+            @PathVariable("id")
+            Long id,
+            Authentication authentication) {
+        Gasto gasto = gastoRepository.getReferenceById(id);
+        var datosGasto = new DatosDetalleGasto(gasto);
+        return ResponseEntity.ok(datosGasto);
+    }
+
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity eliminarGasto(
@@ -74,10 +86,9 @@ public class GastoController {
                     datosActualizarGasto,
             Authentication authentication
     ){
-        Gasto gasto = gastoRepository.getReferenceById(datosActualizarGasto.id());
-        gasto.actualizarDatos(datosActualizarGasto);
+        var response = service.actualizar(datosActualizarGasto);
 
-        return ResponseEntity.ok(new DatosDetalleGasto(gasto));
+        return ResponseEntity.ok(response);
     }
 
 }

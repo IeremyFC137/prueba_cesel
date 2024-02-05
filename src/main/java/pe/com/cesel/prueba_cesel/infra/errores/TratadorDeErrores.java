@@ -74,6 +74,12 @@ public class TratadorDeErrores {
         return ResponseEntity.status(403).body(ErrorDetails.fromException(e,403));
     }
 
+    @ExceptionHandler(NotFoundEntity.class)
+    public ResponseEntity handleNotFoundEntity(NotFoundEntity e) {
+        return ResponseEntity.status(404).body(ErrorDetails.fromException(e, 404));
+    }
+
+
     public record ErrorDetails(int statusCode, List message, String error) {
 
         public static ErrorDetails fromException(Exception exception, int statusCode) {

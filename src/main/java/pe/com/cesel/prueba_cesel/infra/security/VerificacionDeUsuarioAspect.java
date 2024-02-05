@@ -13,6 +13,7 @@ import pe.com.cesel.prueba_cesel.domain.gasto.Gasto;
 import pe.com.cesel.prueba_cesel.domain.gasto.GastoRepository;
 import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 import pe.com.cesel.prueba_cesel.domain.usuario.UsuarioRepository;
+import pe.com.cesel.prueba_cesel.infra.errores.NotFoundEntity;
 
 @Aspect
 @Component
@@ -25,7 +26,8 @@ public class VerificacionDeUsuarioAspect {
     private UsuarioRepository usuarioRepository;
 
     @Pointcut("execution(* pe.com.cesel.prueba_cesel.controller.GastoController.eliminarGasto(..)) || " +
-            "execution(* pe.com.cesel.prueba_cesel.controller.GastoController.actualizarGasto(..))")
+            "execution(* pe.com.cesel.prueba_cesel.controller.GastoController.actualizarGasto(..)) ||" +
+            "execution(* pe.com.cesel.prueba_cesel.controller.GastoController.retornaDatosGasto(..))")
     public void metodosGasto() {}
 
 
@@ -54,12 +56,12 @@ public class VerificacionDeUsuarioAspect {
         Usuario usuario = usuarioRepository.findByEmail(correoUsuarioToken);
 
         if (usuario == null) {
-            throw new AccessDeniedException("Usuario no encontrado");
+            throw new NotFoundEntity("Usuario no encontrado");
         }
 
         assert id != null;
         Gasto gasto = gastoRepository.findById(id)
-                .orElseThrow(() -> new AccessDeniedException("Gasto no encontrado"));
+                .orElseThrow(() -> new NotFoundEntity("Gasto no encontrado"));
 
         if (!gasto.getUsuario().getId().equals(usuario.getId())) {
             throw new AccessDeniedException("Acceso denegado");

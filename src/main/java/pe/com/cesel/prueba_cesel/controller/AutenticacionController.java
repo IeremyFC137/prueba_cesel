@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 import pe.com.cesel.prueba_cesel.domain.usuario.UsuarioRepository;
 import pe.com.cesel.prueba_cesel.infra.errores.AuthenticationInvalid;
+import pe.com.cesel.prueba_cesel.infra.errores.NotFoundEntity;
 import pe.com.cesel.prueba_cesel.infra.security.DatosAutenticacion;
 import pe.com.cesel.prueba_cesel.infra.security.TokenService;
 import pe.com.cesel.prueba_cesel.domain.authentication.DatosAutenticacionUsuario;
@@ -75,7 +76,7 @@ public class AutenticacionController {
             Usuario usuario = usuarioRepository.findByEmail(userEmail);
 
             if (usuario == null) {
-                throw new AuthenticationInvalid("Usuario no encontrado");
+                throw new NotFoundEntity("Usuario no encontrado");
             }
 
             return ResponseEntity.ok(

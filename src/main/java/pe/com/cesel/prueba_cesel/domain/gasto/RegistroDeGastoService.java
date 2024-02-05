@@ -1,6 +1,7 @@
 package pe.com.cesel.prueba_cesel.domain.gasto;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pe.com.cesel.prueba_cesel.domain.gasto.validaciones.ValidadorDeGastos;
 import pe.com.cesel.prueba_cesel.domain.usuario.UsuarioRepository;
@@ -31,4 +32,13 @@ public class RegistroDeGastoService {
 
         return new DatosDetalleGasto(gasto);
     }
+   public DatosDetalleGasto actualizar(DatosActualizarGasto datos){
+       if(!gastoRepository.findById(datos.id()).isPresent()){
+           throw new ValidacionDeIntegridad("este id para el gasto no fue encontrado");
+       }
+       Gasto gasto = gastoRepository.getReferenceById(datos.id());
+       gasto.actualizarDatos((datos));
+       return new DatosDetalleGasto(gasto);
+
+   }
 }

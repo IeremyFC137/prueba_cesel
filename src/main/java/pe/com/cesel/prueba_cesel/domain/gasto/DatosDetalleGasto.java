@@ -4,6 +4,8 @@ import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public record DatosDetalleGasto(
         Long id,
@@ -21,7 +23,8 @@ public record DatosDetalleGasto(
         String c_costo,
         String c_gasto,
         String c_contable,
-        String estado
+        String estado,
+        List<String> images
 ) {
     public DatosDetalleGasto (Gasto gasto){
         this(
@@ -40,7 +43,8 @@ public record DatosDetalleGasto(
                 gasto.getC_costo(),
                 gasto.getC_gasto(),
                 gasto.getC_contable(),
-                "Registro");
+                "Registro",
+                new ArrayList<String>());
     }
 
 

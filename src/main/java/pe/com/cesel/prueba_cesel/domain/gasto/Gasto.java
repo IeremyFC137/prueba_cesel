@@ -1,6 +1,7 @@
 package pe.com.cesel.prueba_cesel.domain.gasto;
 
 import jakarta.persistence.*;
+import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -59,18 +60,34 @@ public class Gasto {
     public void actualizarDatos(DatosActualizarGasto datosActualizarGasto) {
 
         if (datosActualizarGasto.c_costo() != null) {
+            if(datosActualizarGasto.c_costo().isEmpty() || datosActualizarGasto.c_costo().isBlank()){
+                throw new ValidationException("El campo c_costo no debe estar vacio");
+            }
             this.c_costo = datosActualizarGasto.c_costo();
         }
         if (datosActualizarGasto.c_gasto()!= null) {
+            if(datosActualizarGasto.c_gasto().isEmpty() || datosActualizarGasto.c_gasto().isBlank()){
+                throw new ValidationException("El campo c_gasto no debe estar vacio");
+            }
             this.c_gasto = datosActualizarGasto.c_gasto();
         }
         if (datosActualizarGasto.c_contable()!= null) {
+            if(datosActualizarGasto.c_contable().isEmpty() || datosActualizarGasto.c_contable().isBlank()){
+                throw new ValidationException("El campo c_contable no debe estar vacio");
+            }
             this.c_contable = datosActualizarGasto.c_contable();
         }
         if(datosActualizarGasto.importe()!=null){
+            if(datosActualizarGasto.importe().compareTo(BigDecimal.ZERO)<0){
+                throw new ValidationException("El campo importe debe ser positivo");
+            }
             this.importe = datosActualizarGasto.importe();
         }
         if(datosActualizarGasto.p_importe()!=null){
+            if(datosActualizarGasto.p_importe().compareTo(BigDecimal.ZERO)<0 ||
+                    datosActualizarGasto.p_importe().compareTo(BigDecimal.ONE) > 0){
+                throw new ValidationException("El campo p_importe debe estar en el rango de 0 a 1");
+            }
             this.p_importe = datosActualizarGasto.p_importe();
         }
     }
