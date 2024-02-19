@@ -32,7 +32,7 @@ public class TextExtractor {
 
     public String extractNumeroDocumento(String text) {
 
-        Pattern pattern = Pattern.compile("\\b([FBfb]\\d{3}\\s*-\\s*\\d{3,10}|\\d{1,5}\\s*-\\s*\\d{5,10})\\b");
+        Pattern pattern = Pattern.compile("\\b([FfBbEeRr]\\d{3}\\s*-\\s*\\d{3,10}|\\d{1,5}\\s*-\\s*\\d{5,10})\\b");
 
         Matcher matcher = pattern.matcher(text);
 
@@ -122,9 +122,24 @@ public class TextExtractor {
     }
 
     public String extractTipoMoneda(String text) {
-        Pattern pattern = Pattern.compile("\\b(soles|dolares)\\b", Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("\\b(soles|dolares|sol|dolar)\\b", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(text);
-        return matcher.find() ? matcher.group(0).toUpperCase() : "";
+        if (matcher.find()) { // Primero, busca una coincidencia
+            String match = matcher.group(0).toLowerCase(); // Usa toLowerCase() para simplificar las comparaciones
+            switch (match) { // Un switch es más limpio para este caso
+                case "dolar":
+                case "dolares":
+                    return "DOLARES";
+                case "sol":
+                case "soles":
+                    return "SOLES";
+                default: // En teoría, este caso nunca debería alcanzarse debido a tu regex
+                    return "";
+            }
+        } else {
+            return ""; // Devuelve cadena vacía si no hay coincidencias
+        }
     }
+
 
 }

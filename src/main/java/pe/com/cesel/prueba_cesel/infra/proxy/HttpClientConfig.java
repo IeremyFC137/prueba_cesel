@@ -7,23 +7,27 @@ import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 @Configuration
 public class HttpClientConfig {
 
-    @Value("${proxy.host}")
+    @Value("${proxy.host:}")
     private String proxyHost;
 
-    @Value("${proxy.port}")
-    private int proxyPort;
+    @Value("${proxy.port:}")
+    private Integer proxyPort;
 
     @Bean
     public CloseableHttpClient httpClient() {
+        RequestConfig.Builder configBuilder = RequestConfig.custom();
 
-        HttpHost proxy = new HttpHost(proxyHost, proxyPort);
-        RequestConfig config = RequestConfig.custom()
-                .setProxy(proxy)
-                .build();
+        if (StringUtils.hasText(proxyHost) && proxyPort != null) {
+            HttpHost proxy = new HttpHost(proxyHost, proxyPort);
+            configBuilder = configBuilder.setProxy(proxy);
+        }
+
+        RequestConfig config = configBuilder.build();
 
         return HttpClients.custom()
                 .setDefaultRequestConfig(config)

@@ -48,6 +48,7 @@ public class ProcesoOcrFotoService {
         post.setEntity(multipart);
 
         try (CloseableHttpResponse response = httpClient.execute(post)) {
+
             if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300) {
 
                 String jsonResponse = EntityUtils.toString(response.getEntity());
@@ -60,6 +61,7 @@ public class ProcesoOcrFotoService {
 
                     String parsedText = ocrResponse.getParsedResults().get(0).getParsedText();
                     System.out.println(parsedText);
+
                     return new DatosResultadoOcr(
                             textExtractor.extractProvider(parsedText),
                             textExtractor.extractRuc(parsedText),
@@ -70,13 +72,13 @@ public class ProcesoOcrFotoService {
                             textExtractor.extractMoney(parsedText).get(1),
                             textExtractor.extractMoney(parsedText).get(2),
                             textExtractor.extractMoney(parsedText).get(0)
-                        );
-                    }
-
+                    );
                 }
-            }   catch (Exception e) {
-                    throw new RuntimeException(e.getMessage());
+
             }
+        }   catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
 
         throw new RuntimeException("Error processing the image");
     }

@@ -39,6 +39,11 @@ public class TratadorDeErrores {
         return ResponseEntity.status(401).body(ErrorDetails.fromException(e,401));
     }
 
+    @ExceptionHandler(InvalidRequestError.class)
+    public ResponseEntity errorHandlerRequestError(Exception e){
+        return ResponseEntity.status(400).body(ErrorDetails.fromException(e,400));
+    }
+
     @ExceptionHandler(ValidacionDeImagen.class)
     public ResponseEntity errorHandlerValidacionDeIntegridad(Exception e){
         return ResponseEntity.badRequest().body(ErrorDetails.fromException(e,400));

@@ -18,6 +18,7 @@ import pe.com.cesel.prueba_cesel.domain.usuario.UsuarioRepository;
 import pe.com.cesel.prueba_cesel.infra.errores.ValidacionDeIntegridad;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/gastos")
@@ -55,6 +56,12 @@ public class GastoController {
         Usuario usuario = usuarioRepository.findByEmail(email);
 
         return ResponseEntity.ok(gastoRepository.findByUsuarioId(usuario.getId(), paginacion).map(DatosDetalleGasto::new));
+    }
+
+    @GetMapping("/obtenerCentroCosto")
+    public ResponseEntity<ListaCampoDetalleGasto> listaCentroCosto(){
+        List<String> datos = gastoRepository.obtenerCentroDeCosto();
+        return ResponseEntity.ok(new ListaCampoDetalleGasto(datos));
     }
 
     @GetMapping("/{id}")

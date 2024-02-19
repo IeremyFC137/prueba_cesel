@@ -13,7 +13,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Aquí defines los patrones de URL para los cuales se aplicará la política CORS.
-                        .allowedOrigins("http://192.168.1.192") // Utiliza allowedOriginPatterns para patrones.
+                        .allowedOrigins("http://172.16.4.92") // Utiliza allowedOriginPatterns para patrones.
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos HTTP permitidos.
                         .allowedHeaders("*") // Cabeceras permitidas.
                         .allowCredentials(true) // Para permitir el envío de cookies.
