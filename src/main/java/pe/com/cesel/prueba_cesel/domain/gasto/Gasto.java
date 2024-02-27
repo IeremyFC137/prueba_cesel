@@ -6,10 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.DatosDetalleGastoActualizar;
+import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.GastoDetalle;
 import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Table(name = "gastos_prueba_ieremy")
 @Entity(name = "Gasto")
@@ -32,13 +36,10 @@ public class Gasto {
     private LocalDateTime fecha_emision;
     private BigDecimal sub_total;
     private BigDecimal igv;
-    private BigDecimal importe;
-    private BigDecimal p_importe;
     @Enumerated(EnumType.STRING)
     private Moneda moneda;
-    private String c_costo;
-    private String c_gasto;
-    private String c_contable;
+    @OneToMany(mappedBy = "gasto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GastoDetalle> detallesGasto;
 
     public Gasto(Usuario usuario, DatosRegistroGasto datosRegistroGastos) {
         this.usuario = usuario;
@@ -49,48 +50,61 @@ public class Gasto {
         this.fecha_emision = datosRegistroGastos.fecha_emision();
         this.sub_total = datosRegistroGastos.sub_total();
         this.igv = datosRegistroGastos.igv();
-        this.importe = datosRegistroGastos.importe();
-        this.p_importe = datosRegistroGastos.p_importe();
         this.moneda = datosRegistroGastos.moneda();
-        this.c_costo = datosRegistroGastos.c_costo();
-        this.c_gasto = datosRegistroGastos.c_gasto();
-        this.c_contable = datosRegistroGastos.c_contable();
+        this.detallesGasto = datosRegistroGastos.detalles().stream()
+                .map(detalle -> new GastoDetalle(
+                        null,
+                        this,
+                        detalle.c_costo(),
+                        detalle.c_gasto(),
+                        detalle.c_contable(),
+                        detalle.importe(),
+                        detalle.p_importe()
+                )).collect(Collectors.toList());
     }
 
     public void actualizarDatos(DatosActualizarGasto datosActualizarGasto) {
 
-        if (datosActualizarGasto.c_costo() != null) {
-            if(datosActualizarGasto.c_costo().isEmpty() || datosActualizarGasto.c_costo().isBlank()){
-                throw new ValidationException("El campo c_costo no debe estar vacio");
+        for (DatosDetalleGastoActualizar detalleActualizar : datosActualizarGasto.detalles()) {
+
+            GastoDetalle detalle = this.detallesGasto.stream()
+                    .filter(d -> d.getId().equals(detalleActualizar.detalleId()))
+                    .findFirst()
+                    .orElseThrow(() -> new ValidationException("Detalle de Gasto no encontrado con ID: " +
+                            detalleActualizar.detalleId()));
+
+            if (detalleActualizar.c_costo() != null) {
+                if(detalleActualizar.c_costo().isEmpty() || detalleActualizar.c_costo().isBlank()){
+                    throw new ValidationException("El campo c_costo no debe estar vacio");
+                }
+                detalle.setC_costo(detalleActualizar.c_costo());
             }
-            this.c_costo = datosActualizarGasto.c_costo();
-        }
-        if (datosActualizarGasto.c_gasto()!= null) {
-            if(datosActualizarGasto.c_gasto().isEmpty() || datosActualizarGasto.c_gasto().isBlank()){
-                throw new ValidationException("El campo c_gasto no debe estar vacio");
+            if (detalleActualizar.c_gasto()!= null) {
+                if(detalleActualizar.c_gasto().isEmpty() || detalleActualizar.c_gasto().isBlank()){
+                    throw new ValidationException("El campo c_gasto no debe estar vacio");
+                }
+                detalle.setC_gasto(detalleActualizar.c_gasto());
             }
-            this.c_gasto = datosActualizarGasto.c_gasto();
-        }
-        if (datosActualizarGasto.c_contable()!= null) {
-            if(datosActualizarGasto.c_contable().isEmpty() || datosActualizarGasto.c_contable().isBlank()){
-                throw new ValidationException("El campo c_contable no debe estar vacio");
+            if (detalleActualizar.c_contable()!= null) {
+                if(detalleActualizar.c_contable().isEmpty() || detalleActualizar.c_contable().isBlank()){
+                    throw new ValidationException("El campo c_contable no debe estar vacio");
+                }
+                detalle.setC_contable(detalleActualizar.c_contable());
             }
-            this.c_contable = datosActualizarGasto.c_contable();
-        }
-        if(datosActualizarGasto.importe()!=null){
-            if(datosActualizarGasto.importe().compareTo(BigDecimal.ZERO)<0){
-                throw new ValidationException("El campo importe debe ser positivo");
+            if(detalleActualizar.importe()!=null){
+                if(detalleActualizar.importe().compareTo(BigDecimal.ZERO)<0){
+                    throw new ValidationException("El campo importe debe ser positivo");
+                }
+                detalle.setImporte(detalleActualizar.importe());
             }
-            this.importe = datosActualizarGasto.importe();
-        }
-        if(datosActualizarGasto.p_importe()!=null){
-            if(datosActualizarGasto.p_importe().compareTo(BigDecimal.ZERO)<0 ||
-                    datosActualizarGasto.p_importe().compareTo(BigDecimal.ONE) > 0){
-                throw new ValidationException("El campo p_importe debe estar en el rango de 0 a 1");
+            if(detalleActualizar.p_importe()!=null){
+                if(detalleActualizar.p_importe().compareTo(BigDecimal.ZERO)<0 ||
+                        detalleActualizar.p_importe().compareTo(BigDecimal.ONE) > 0){
+                    throw new ValidationException("El campo p_importe debe estar en el rango de 0 a 1");
+                }
+                detalle.setP_importe(detalleActualizar.p_importe());
             }
-            this.p_importe = datosActualizarGasto.p_importe();
         }
+
     }
-
-
 }

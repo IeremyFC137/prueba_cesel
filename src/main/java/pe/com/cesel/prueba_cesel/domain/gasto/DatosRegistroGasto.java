@@ -2,9 +2,11 @@ package pe.com.cesel.prueba_cesel.domain.gasto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.DatosDetalleGastoRegistro;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record DatosRegistroGasto(
         @NotNull
@@ -24,17 +26,8 @@ public record DatosRegistroGasto(
         @NotNull
         BigDecimal igv,
         @NotNull
-        BigDecimal importe,
-        @NotNull
-        BigDecimal p_importe,
-        @NotNull
         Moneda moneda,
-        @NotBlank
-        String c_costo,
-        @NotBlank
-        String c_gasto,
-        @NotBlank
-        String c_contable
-
+        @NotNull
+        List<DatosDetalleGastoRegistro> detalles
 ) {
 }

@@ -1,13 +1,15 @@
 package pe.com.cesel.prueba_cesel.domain.gasto;
 
-import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
+import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.GastoDetalle;
+import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.ResultadoDetalleGasto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public record DatosDetalleGasto(
+public record ResultadoRegistroGasto(
         Long id,
         Long idUsuario,
         String proveedor,
@@ -17,16 +19,12 @@ public record DatosDetalleGasto(
         LocalDateTime fecha_emision,
         BigDecimal sub_total,
         BigDecimal igv,
-        BigDecimal importe,
-        BigDecimal p_importe,
         Moneda moneda,
-        String c_costo,
-        String c_gasto,
-        String c_contable,
+        List<ResultadoDetalleGasto> detalles,
         String estado,
         List<String> images
 ) {
-    public DatosDetalleGasto (Gasto gasto){
+    public ResultadoRegistroGasto(Gasto gasto){
         this(
                 gasto.getId(),
                 gasto.getUsuario().getId(),
@@ -37,15 +35,19 @@ public record DatosDetalleGasto(
                 gasto.getFecha_emision(),
                 gasto.getSub_total(),
                 gasto.getIgv(),
-                gasto.getImporte(),
-                gasto.getP_importe(),
                 gasto.getMoneda(),
-                gasto.getC_costo(),
-                gasto.getC_gasto(),
-                gasto.getC_contable(),
+                gasto.getDetallesGasto().stream().map(detalle ->
+                        new ResultadoDetalleGasto(
+                                detalle.getId(),
+                                detalle.getC_costo(),
+                                detalle.getC_gasto(),
+                                detalle.getC_contable(),
+                                detalle.getImporte(),
+                                detalle.getP_importe()
+                        )
+                ).collect(Collectors.toList()),
                 "Registro",
                 new ArrayList<String>());
     }
-
 
 }

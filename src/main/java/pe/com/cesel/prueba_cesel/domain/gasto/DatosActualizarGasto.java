@@ -1,15 +1,13 @@
 package pe.com.cesel.prueba_cesel.domain.gasto;
 
 import jakarta.validation.constraints.NotNull;
+import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.DatosDetalleGastoActualizar;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 public record DatosActualizarGasto(
-        @NotNull Long id,
-        String c_costo,
-        String c_gasto,
-        String c_contable,
-        BigDecimal importe,
-        BigDecimal p_importe
+        @NotNull
+        Long id,
+        List<DatosDetalleGastoActualizar> detalles
 ) {
 }
