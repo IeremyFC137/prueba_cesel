@@ -38,10 +38,11 @@ public class Gasto {
     private BigDecimal igv;
     @Enumerated(EnumType.STRING)
     private Moneda moneda;
+    private String ruta_imagen;
     @OneToMany(mappedBy = "gasto", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GastoDetalle> detallesGasto;
 
-    public Gasto(Usuario usuario, DatosRegistroGasto datosRegistroGastos) {
+    public Gasto(Usuario usuario, DatosRegistroGasto datosRegistroGastos, String rutaImagen) {
         this.usuario = usuario;
         this.proveedor = datosRegistroGastos.proveedor();
         this.ruc = datosRegistroGastos.ruc();
@@ -51,6 +52,7 @@ public class Gasto {
         this.sub_total = datosRegistroGastos.sub_total();
         this.igv = datosRegistroGastos.igv();
         this.moneda = datosRegistroGastos.moneda();
+        this.ruta_imagen = rutaImagen;
         this.detallesGasto = datosRegistroGastos.detalles().stream()
                 .map(detalle -> new GastoDetalle(
                         null,
@@ -63,7 +65,11 @@ public class Gasto {
                 )).collect(Collectors.toList());
     }
 
-    public void actualizarDatos(DatosActualizarGasto datosActualizarGasto) {
+    public void actualizarDatos(DatosActualizarGasto datosActualizarGasto, String ruta_imagen) {
+
+        if(ruta_imagen!=null && !ruta_imagen.isBlank()){
+            this.ruta_imagen = ruta_imagen;
+        }
 
         for (DatosDetalleGastoActualizar detalleActualizar : datosActualizarGasto.detalles()) {
 

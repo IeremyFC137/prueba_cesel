@@ -1,23 +1,43 @@
 package pe.com.cesel.prueba_cesel.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import org.springframework.core.io.Resource;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 import pe.com.cesel.prueba_cesel.domain.gasto.*;
 import org.springframework.transaction.annotation.Transactional;
 import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.*;
 import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 import pe.com.cesel.prueba_cesel.domain.usuario.UsuarioRepository;
+import pe.com.cesel.prueba_cesel.infra.errores.CustomValidationException;
 import pe.com.cesel.prueba_cesel.infra.errores.ValidacionDeIntegridad;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import java.io.IOException;
 import java.net.URI;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/gastos")
@@ -32,20 +52,39 @@ public class GastoController {
     private DetallesGastoRepository detallesGastoRepository;
 
     @Autowired
-    UsuarioRepository usuarioRepository;
+    private Validator validator;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @PostMapping
     @Transactional
     public ResponseEntity<ResultadoRegistroGasto> registrarGasto(
-            @RequestBody
-            @Valid
-            DatosRegistroGasto datos,
-            UriComponentsBuilder uriComponentsBuilder)
-            throws ValidacionDeIntegridad {
+            @RequestParam("datos") String datosJson,
+            @RequestParam("imagen") MultipartFile imagen,
+            UriComponentsBuilder uriComponentsBuilder) {
 
-        var response = service.registrar(datos);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
 
-        URI url = uriComponentsBuilder.path("/gastos/{id}").buildAndExpand(response.id()).toUri();
+        DatosRegistroGasto datos;
+        try {
+            datos = objectMapper.readValue(datosJson, DatosRegistroGasto.class);
+            Set<ConstraintViolation<DatosRegistroGasto>> violations = validator.validate(datos);
+
+            if (!violations.isEmpty()) {
+                Set<ConstraintViolation<?>> wildcardViolations = new HashSet<>(violations);
+                throw new CustomValidationException(wildcardViolations, "Mensaje de error de validación");
+            }
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error al procesar los datos del gasto", e);
+        }
+
+        ResultadoRegistroGasto response = service.registrar(datos, imagen);
+        URI url = ServletUriComponentsBuilder.fromCurrentRequestUri()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
 
         return ResponseEntity.created(url).body(response);
     }
@@ -130,6 +169,25 @@ public class GastoController {
         return ResponseEntity.ok(datosGasto);
     }
 
+    @GetMapping("/image/{fileName:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable("fileName") String fileName) {
+        try {
+            final Path fileStorageLocation = Paths.get("assets/images");
+            Path filePath = fileStorageLocation.resolve(fileName).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (MalformedURLException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity eliminarGasto(
@@ -169,13 +227,24 @@ public class GastoController {
     @PutMapping
     @Transactional
     public ResponseEntity actualizarGasto(
-            @RequestBody
-            @Valid
-            DatosActualizarGasto
-                    datosActualizarGasto,
+            @RequestParam("datos") String datosJson,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
             Authentication authentication
     ){
-        var response = service.actualizar(datosActualizarGasto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        DatosActualizarGasto datos;
+        try {
+            datos = objectMapper.readValue(datosJson, DatosActualizarGasto.class);
+            Set<ConstraintViolation<DatosActualizarGasto>> violations = validator.validate(datos);
+
+            if (!violations.isEmpty()) {
+                Set<ConstraintViolation<?>> wildcardViolations = new HashSet<>(violations);
+                throw new CustomValidationException(wildcardViolations, "Mensaje de error de validación");
+            }
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Error al procesar los datos del gasto", e);
+        }
+        var response = service.actualizar(datos, imagen);
 
         return ResponseEntity.ok(response);
     }

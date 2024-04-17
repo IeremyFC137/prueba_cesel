@@ -1,5 +1,7 @@
 package pe.com.cesel.prueba_cesel.infra.errores;
 
+import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,24 @@ public class TratadorDeErrores {
         return ResponseEntity.badRequest().body(
                 new ErrorDetails(
                         400,
+                        errores,
+                        e.getClass().getSimpleName()
+                )
+        );
+    }
+    @ExceptionHandler(CustomValidationException.class)
+    public ResponseEntity<Object> handleCustomValidationException(CustomValidationException e) {
+
+        List<DatosErrorValidacion> errores = e.getConstraintViolations().stream()
+                .map(violation -> new DatosErrorValidacion(
+                        violation.getPropertyPath().toString(),
+                        violation.getMessage())
+                )
+                .collect(Collectors.toList());
+
+        return ResponseEntity.badRequest().body(
+                new ErrorDetails(
+                        HttpStatus.BAD_REQUEST.value(),
                         errores,
                         e.getClass().getSimpleName()
                 )
@@ -96,7 +116,6 @@ public class TratadorDeErrores {
         }
 
     }
-
     private record DatosErrorValidacion(String campo, String error){
         public DatosErrorValidacion(FieldError error){
             this(

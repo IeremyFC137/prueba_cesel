@@ -1,5 +1,6 @@
 package pe.com.cesel.prueba_cesel.infra.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
@@ -16,6 +17,7 @@ import pe.com.cesel.prueba_cesel.domain.usuario.Usuario;
 import pe.com.cesel.prueba_cesel.domain.usuario.UsuarioRepository;
 import pe.com.cesel.prueba_cesel.infra.errores.NotFoundEntity;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,12 +92,18 @@ public class VerificacionDeUsuarioAspect {
         Object[] args = joinPoint.getArgs();
         Authentication authentication = null;
         Long id = null;
+        ObjectMapper objectMapper = new ObjectMapper();
 
         for (Object arg : args) {
-            if(arg instanceof Authentication) {
+            if (arg instanceof Authentication) {
                 authentication = (Authentication) arg;
-            } else if (arg instanceof DatosActualizarGasto) {
-                id = ((DatosActualizarGasto) arg).id();
+            } else if (arg instanceof String) {
+                try {
+                    DatosActualizarGasto datos = objectMapper.readValue((String) arg, DatosActualizarGasto.class);
+                    id = datos.id();
+                } catch (IOException e) {
+                    throw new Exception(e);
+                }
             } else if (arg instanceof Long) {
                 id = (Long) arg;
             }

@@ -30,7 +30,8 @@ public class SecurityConfigurations {
                 .and()
                 .authorizeRequests()
                 .requestMatchers(HttpMethod.GET, "/auth/check-status").permitAll()  // Permitir todos para GET a /auth/check-status
-                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll() // Permitir todos para POST a /auth/login
+                .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/gastos/image/**").permitAll()// Permitir todos para POST a /auth/login
                 .anyRequest().authenticated() // Cualquier otra solicitud requiere autenticación
                 .and()
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class) // Agregar el filtro personalizado

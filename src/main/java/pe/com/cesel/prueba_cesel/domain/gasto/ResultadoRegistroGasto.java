@@ -6,6 +6,7 @@ import pe.com.cesel.prueba_cesel.domain.gasto.gastoDetalle.ResultadoDetalleGasto
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +21,10 @@ public record ResultadoRegistroGasto(
         BigDecimal sub_total,
         BigDecimal igv,
         Moneda moneda,
+        List<String> images,
         List<ResultadoDetalleGasto> detalles,
-        String estado,
-        List<String> images
+        String estado
+
 ) {
     public ResultadoRegistroGasto(Gasto gasto){
         this(
@@ -36,6 +38,9 @@ public record ResultadoRegistroGasto(
                 gasto.getSub_total(),
                 gasto.getIgv(),
                 gasto.getMoneda(),
+                gasto.getRuta_imagen() != null
+                        ? Collections.singletonList(gasto.getRuta_imagen())
+                        : Collections.emptyList(),
                 gasto.getDetallesGasto().stream().map(detalle ->
                         new ResultadoDetalleGasto(
                                 detalle.getId(),
@@ -46,8 +51,8 @@ public record ResultadoRegistroGasto(
                                 detalle.getP_importe()
                         )
                 ).collect(Collectors.toList()),
-                "Registro",
-                new ArrayList<String>());
+                "Registro"
+               );
     }
 
 }
